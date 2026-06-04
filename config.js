@@ -48,8 +48,11 @@ if (typeof window.configLoaded === "undefined") {
       threeDotButton: '[id^="radix-"]',
       HISTORY: '[id^="history"]',
       CONVERSATION_SELECTOR: "a",
+      PROJECT_CONVERSATION_SELECTOR: 'main li[class*="group/project-item"]',
+      PROJECT_CONVERSATION_LINK_SELECTOR: 'a[href*="/c/"]',
       TITLE_SELECTOR: ".relative.grow.overflow-hidden.whitespace-nowrap",
       INTERACTIVE_ELEMENT_SELECTOR: "button",
+      CONVERSATION_MENU_BUTTON: 'button[data-conversation-options-trigger], button[data-trailing-button], button[id^="radix-"][aria-haspopup="menu"], button[id^="radix-"]',
       MENU_ITEM: 'div[role="menuitem"]',
       // Improved selectors for language-independent detection
       DELETE_BUTTON: 'div[role="menuitem"]:last-child, div[role="menuitem"] .text-token-text-error, div[role="menuitem"][data-testid*="delete"]',

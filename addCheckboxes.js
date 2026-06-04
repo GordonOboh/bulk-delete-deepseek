@@ -26,13 +26,6 @@
   function addCheckboxesToConversations() {
     return core.executeOperation('addCheckboxes', () => {
       utils.log('log', 'Starting checkbox addition operation');
-      
-      // Check if history container exists
-      const history = utils.safeQuery(UI_CONFIG.SELECTORS.HISTORY);
-      if (!history) {
-        utils.log('log', 'History container not found, unable to add checkboxes');
-        return { success: false, reason: 'No history container found' };
-      }
 
       // Get required modules
       const CheckboxManager = core.getModule('CheckboxManager');

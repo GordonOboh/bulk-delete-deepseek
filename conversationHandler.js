@@ -134,25 +134,21 @@ if (typeof window.conversationHandlerLoaded === "undefined") {
     async processConversation(operation, checkbox) {
       await CommonUtils.delay(UI_CONFIG.DELAYS.SHORT);
 
-      // checkbox.parentElement is now the conversation <a> directly
-      // (we no longer wrap children in a custom flex container).
-      const conversationElement = checkbox.parentElement;
+      const conversationElement = DOMHandler.getConversationElementFromCheckbox
+        ? DOMHandler.getConversationElementFromCheckbox(checkbox)
+        : checkbox.parentElement;
       const interactiveElement = DOMHandler.findInteractiveElement(conversationElement)
         || conversationElement;
 
       try {
         // Hover to reveal menu
         console.log(`1. Hovering over conversation...`);
+        DOMHandler.dispatchHoverEvent(conversationElement);
         DOMHandler.dispatchHoverEvent(interactiveElement);
         await CommonUtils.delay(UI_CONFIG.DELAYS.MEDIUM);
 
-        // Find and click three-dot button. Search inside the conversation
-        // first; fall back to its parent in case ChatGPT renders the trigger
-        // as a sibling element.
-        const searchRoot = conversationElement.parentElement || conversationElement;
-        const threeDotButton = await CommonUtils.waitForElement(
-          UI_CONFIG.SELECTORS.threeDotButton,
-          searchRoot,
+        const threeDotButton = await this.waitForConversationMenuButton(
+          conversationElement,
           operation === 'DELETE' ? UI_CONFIG.TIMEOUTS.ELEMENT_WAIT_SHORT : UI_CONFIG.TIMEOUTS.ELEMENT_WAIT
         );
 
@@ -186,6 +182,24 @@ if (typeof window.conversationHandlerLoaded === "undefined") {
         console.log(`Could not complete ${operation.toLowerCase()} process:`, error);
         return false;
       }
+    },
+
+    async waitForConversationMenuButton(conversationElement, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {
+      const startedAt = Date.now();
+
+      while (Date.now() - startedAt < timeout) {
+        const menuButton = DOMHandler.findConversationMenuButton
+          ? DOMHandler.findConversationMenuButton(conversationElement)
+          : conversationElement.querySelector(UI_CONFIG.SELECTORS.threeDotButton);
+
+        if (menuButton) {
+          return menuButton;
+        }
+
+        await CommonUtils.delay(UI_CONFIG.DELAYS.SHORT);
+      }
+
+      throw new Error(`Conversation menu button not found within ${timeout}ms`);
     },
 
     // Wait for operation-specific button using improved strategies

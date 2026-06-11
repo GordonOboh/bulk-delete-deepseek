@@ -7,7 +7,7 @@ set -euo pipefail
 # Exempts (preserves):
 #   scripts/package.sh          — our packaging script
 #   scripts/clean-original.sh   — this script itself
-#   agent/*                     — our docs (agent_diff.md, contact-request.md, store-checklist.md)
+#   .agents/*                   — our docs (agent_diff.md, contact-request.md, store-checklist.md)
 #   .agents/opencode/           — opencode agent configs
 
 echo "=== Cleaning up original ChatGPT files ==="
@@ -44,4 +44,4 @@ rm -rf assets
 echo "  removed: assets/"
 
 echo "=== Cleanup complete ==="
-echo "Preserved: scripts/package.sh scripts/clean-original.sh agent/* .agents/opencode/"
+echo "Preserved: scripts/package.sh scripts/clean-original.sh .agents/* .agents/opencode/"

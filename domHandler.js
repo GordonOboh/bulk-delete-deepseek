@@ -3,9 +3,7 @@ if (typeof window.domHandlerLoaded === "undefined") {
 
   window.domHandlerLoaded = true;
 
-  // DOM manipulation utilities
   const DOMHandler = {
-    // Create checkbox with consistent styling
     createCheckbox(index) {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -20,80 +18,30 @@ if (typeof window.domHandlerLoaded === "undefined") {
       return checkbox;
     },
 
-    // Create flex container for conversation layout
-    createFlexContainer() {
-      const container = document.createElement("div");
-      container.style.cssText = `
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding: 0;
-      `;
-      return container;
-    },
-
-    // Get conversation title safely
     getConversationTitle(conversationElement) {
       const titleElement = conversationElement.querySelector(UI_CONFIG.SELECTORS.TITLE_SELECTOR);
       if (titleElement) {
         return titleElement.textContent.trim();
       }
-
-      const projectLink = conversationElement.querySelector(
-        UI_CONFIG.SELECTORS.PROJECT_CONVERSATION_LINK_SELECTOR
-      );
-      if (projectLink) {
-        return projectLink.textContent.trim();
-      }
-
       return conversationElement.textContent.trim() || "this conversation";
     },
 
-    // Find interactive element in conversation
     findInteractiveElement(conversationElement) {
-      return conversationElement.querySelector(UI_CONFIG.SELECTORS.INTERACTIVE_ELEMENT_SELECTOR);
+      return conversationElement.querySelector("button");
     },
 
     getConversationElementFromCheckbox(checkbox) {
-      return checkbox.closest('[data-bulk-delete-conversation-owner="true"]')
-        || checkbox.parentElement;
+      return checkbox.closest(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR);
     },
 
     findConversationMenuButton(conversationElement) {
-      const selector = UI_CONFIG.SELECTORS.CONVERSATION_MENU_BUTTON
-        || UI_CONFIG.SELECTORS.threeDotButton;
-      const directButton = conversationElement.querySelector(selector);
-      if (directButton) {
-        return directButton;
+      const titleEl = conversationElement.querySelector(UI_CONFIG.SELECTORS.TITLE_SELECTOR);
+      if (titleEl && titleEl.nextElementSibling) {
+        return titleEl.nextElementSibling;
       }
-
-      const parent = conversationElement.parentElement;
-      if (!parent) {
-        return null;
-      }
-
-      const conversationRect = conversationElement.getBoundingClientRect();
-      const candidates = Array.from(parent.querySelectorAll(selector));
-      const alignedCandidates = candidates
-        .map((button) => {
-          const rect = button.getBoundingClientRect();
-          const overlapsVertically =
-            rect.bottom >= conversationRect.top &&
-            rect.top <= conversationRect.bottom;
-          const centerDistance = Math.abs(
-            (rect.top + rect.bottom) / 2 -
-            (conversationRect.top + conversationRect.bottom) / 2
-          );
-
-          return { button, overlapsVertically, centerDistance };
-        })
-        .filter((candidate) => candidate.overlapsVertically)
-        .sort((a, b) => a.centerDistance - b.centerDistance);
-
-      return alignedCandidates[0] ? alignedCandidates[0].button : null;
+      return conversationElement.querySelector("button");
     },
 
-    // Dispatch hover event
     dispatchHoverEvent(element) {
       const hoverEvent = new MouseEvent("mouseover", {
         view: window,
@@ -103,7 +51,6 @@ if (typeof window.domHandlerLoaded === "undefined") {
       element.dispatchEvent(hoverEvent);
     },
 
-    // Dispatch pointer down event
     dispatchPointerDownEvent(element) {
       const pointerDownEvent = new PointerEvent("pointerdown", {
         bubbles: true,
@@ -113,21 +60,16 @@ if (typeof window.domHandlerLoaded === "undefined") {
       element.dispatchEvent(pointerDownEvent);
     },
 
-    // Get all conversations from history
     getHistoryConversations() {
-      const history = document.querySelector(UI_CONFIG.SELECTORS.HISTORY);
-      if (!history) {
-        return [];
-      }
-      return Array.from(history.querySelectorAll(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR));
+      const sidebar = document.querySelector(UI_CONFIG.SELECTORS.SIDEBAR);
+      if (!sidebar) return [];
+      const chatList = sidebar.querySelector(UI_CONFIG.SELECTORS.CHAT_LIST);
+      if (!chatList) return [];
+      return Array.from(chatList.querySelectorAll(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR));
     },
 
     getProjectConversations() {
-      return Array.from(
-        document.querySelectorAll(UI_CONFIG.SELECTORS.PROJECT_CONVERSATION_SELECTOR)
-      ).filter((conversation) =>
-        conversation.querySelector(UI_CONFIG.SELECTORS.PROJECT_CONVERSATION_LINK_SELECTOR)
-      );
+      return [];
     },
 
     getAllConversations() {
@@ -140,16 +82,12 @@ if (typeof window.domHandlerLoaded === "undefined") {
       );
     },
 
-    // Toggle conversation link interaction
     toggleConversationInteraction(conversation, disable = true) {
       if (conversation.matches("a")) {
-        // Sidebar conversations are anchors themselves. Disabling pointer
-        // events on the host anchor also blocks the injected checkbox.
         conversation.style.pointerEvents = "auto";
         conversation.style.cursor = disable ? "pointer" : "";
         return;
       }
-
       const link = conversation.querySelector("a");
       if (link) {
         if (disable) {
@@ -163,16 +101,13 @@ if (typeof window.domHandlerLoaded === "undefined") {
     }
   };
 
-  // Event handling utilities
   const EventHandler = {
-    // Handle checkbox click with shift selection
     handleCheckboxClick(event, checkbox) {
       event.stopPropagation();
       this.handleShiftSelection(checkbox);
       GlobalState.setLastCheckedCheckbox(checkbox);
     },
 
-    // Handle shift key selection
     handleShiftSelection(clickedCheckbox) {
       if (GlobalState.isShiftPressed() && GlobalState.getLastCheckedCheckbox()) {
         const allCheckboxes = Array.from(
@@ -190,7 +125,6 @@ if (typeof window.domHandlerLoaded === "undefined") {
       }
     },
 
-    // Toggle checkbox in conversation
     toggleCheckboxInConversation(conversation, event) {
       event.preventDefault();
       event.stopPropagation();
@@ -205,40 +139,32 @@ if (typeof window.domHandlerLoaded === "undefined") {
       }
     },
 
-    // Add keyboard event listeners
     addKeyboardListeners() {
-      console.log("Adding keyboard event listeners...");
-      
       document.addEventListener("keydown", (event) => {
         if (event.key === "Shift") {
-          console.log("Shift key pressed");
           GlobalState.setShiftPressed(true);
         }
       });
 
       document.addEventListener("keyup", (event) => {
         if (event.key === "Shift") {
-          console.log("Shift key released");
           GlobalState.setShiftPressed(false);
         }
       });
     }
   };
 
-  // Export to global scope (for backward compatibility)
   window.DOMHandler = DOMHandler;
   window.EventHandler = EventHandler;
 
-  // Register modules with the core system
-  if (window.ChatGPTBulkDelete && window.ChatGPTBulkDelete.registerModule) {
-    window.ChatGPTBulkDelete.registerModule('DOMHandler', DOMHandler);
-    window.ChatGPTBulkDelete.registerModule('EventHandler', EventHandler);
+  if (window.DeepSeekBulkDelete && window.DeepSeekBulkDelete.registerModule) {
+    window.DeepSeekBulkDelete.registerModule('DOMHandler', DOMHandler);
+    window.DeepSeekBulkDelete.registerModule('EventHandler', EventHandler);
   } else {
-    // Fallback: wait for core system to be ready
     const registerModules = () => {
-      if (window.ChatGPTBulkDelete && window.ChatGPTBulkDelete.registerModule) {
-        window.ChatGPTBulkDelete.registerModule('DOMHandler', DOMHandler);
-        window.ChatGPTBulkDelete.registerModule('EventHandler', EventHandler);
+      if (window.DeepSeekBulkDelete && window.DeepSeekBulkDelete.registerModule) {
+        window.DeepSeekBulkDelete.registerModule('DOMHandler', DOMHandler);
+        window.DeepSeekBulkDelete.registerModule('EventHandler', EventHandler);
       } else {
         setTimeout(registerModules, 50);
       }

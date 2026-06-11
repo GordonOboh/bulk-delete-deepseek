@@ -1,21 +1,18 @@
 /**
- * ChatGPT Bulk Delete - Add Checkboxes Operation
- * 
- * This script adds checkboxes to all visible conversation items.
- * It uses the CheckboxManager module for the actual implementation.
+ * DeepSeek Bulk Delete - Add Checkboxes Operation
  */
 
 (function() {
   'use strict';
 
   // Wait for core system to be ready
-  if (!window.ChatGPTBulkDelete || !window.ChatGPTBulkDelete.initialized) {
+  if (!window.DeepSeekBulkDelete || !window.DeepSeekBulkDelete.initialized) {
     console.error('[AddCheckboxes] Core system not ready, deferring execution');
     setTimeout(arguments.callee, 50);
     return;
   }
 
-  const core = window.ChatGPTBulkDelete;
+  const core = window.DeepSeekBulkDelete;
   const utils = core.utils;
 
   utils.debug('AddCheckboxes script loaded');

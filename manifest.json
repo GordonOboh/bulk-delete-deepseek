@@ -1,24 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "ChatGPT Bulk Delete",
-  "version": "6.7",
-  "description": "A Chrome extension to bulk delete ChatGPT conversations",
+  "name": "DeepSeek Bulk Delete",
+  "version": "1.0.0",
+  "description": "Bulk delete DeepSeek chat conversations",
   "icons": {
     "48": "icon48.png"
   },
   "action": {
     "default_icon": "icon48.png",
     "default_popup": "popup.html",
-    "default_title": "Bulk Delete Conversations"
+    "default_title": "DeepSeek Bulk Delete"
   },
-  "permissions": ["scripting", "activeTab", "identity", "identity.email"],
-  "host_permissions": ["https://bulk-delete-chatgpt-worker.qcrao.com/*"],
-  "background": {
-    "service_worker": "background.js"
-  },
+  "permissions": ["scripting", "activeTab"],
   "content_scripts": [
     {
-      "matches": ["*://chat.openai.com/*", "*://chatgpt.com/*"],
+      "matches": ["*://chat.deepseek.com/*"],
       "js": [
         "extensionCore.js",
         "config.js",

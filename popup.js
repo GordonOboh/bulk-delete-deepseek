@@ -9,7 +9,7 @@ const CORE_SCRIPT_FILES = [
 ];
 
 const DELAY_SETTINGS_CONFIG = {
-  storageKey: "BulkDeleteChatGPT_delaySettings",
+  storageKey: "DeepSeekBulkDelete_delaySettings",
   defaults: {
     baseDelayMs: 1200,
     autoSlowdown: true
@@ -75,7 +75,7 @@ async function setOperationDelaySettings(tabId, delaySettings) {
   await executeScriptFunction(
     tabId,
     (settings) => {
-      window.ChatGPTBulkDeleteOperationSettings = settings;
+      window.DeepSeekBulkDeleteOperationSettings = settings;
       return true;
     },
     [delaySettings]
@@ -186,21 +186,18 @@ function updateProgressBar(buttonId, progress) {
   button.style.setProperty("--progress", `${progress}%`);
   button.setAttribute("data-progress", progress);
 
-  const actionText = buttonId === "bulk-delete" ? "Deleting" : "Archiving";
-
   if (progress === 100) {
     button.disabled = true;
-    setProgressButtonContent(button, "100%", `${actionText} Complete`);
+    setProgressButtonContent(button, "100%", "Delete Complete");
 
-    // 显示 100% 一段时间后恢复原始状态
     setTimeout(() => {
       button.disabled = false;
       button.classList.remove("progress");
       setDefaultButtonContent(button, buttonId);
-    }, 500); // 1000 毫秒 = 1 秒，您可以根据需要调整这个时间
+    }, 500);
   } else {
     button.disabled = true;
-    setProgressButtonContent(button, `${progress}%`, `${actionText}...`);
+    setProgressButtonContent(button, `${progress}%`, "Deleting...");
   }
 }
 
@@ -221,14 +218,6 @@ function initializeButtons() {
   addButtonListener("bulk-delete", "bulkDeleteConversations.js");
   addButtonListener("toggle-checkboxes", "toggleCheckboxes.js");
   addButtonListener("remove-checkboxes", "removeCheckboxes.js");
-
-  const bulkArchiveButton = document.getElementById("bulk-archive");
-  bulkArchiveButton.addEventListener("click", handleBulkArchive);
-
-  const closeAdButton = document.getElementById("closeAdButton");
-  if (closeAdButton) {
-    closeAdButton.addEventListener("click", handleCloseAd);
-  }
 }
 
 async function initializeSettings() {
@@ -328,61 +317,6 @@ async function initializeSettings() {
   applySettingsToForm(await SettingsManager.getSettings());
 }
 
-const MembershipManager = {
-  storageKey: "BulkDeleteChatGPT_isPaid",
-  
-  getLocalStatus() {
-    return localStorage.getItem(this.storageKey) === "true";
-  },
-  
-  setLocalStatus(isPaid) {
-    localStorage.setItem(this.storageKey, isPaid.toString());
-  },
-  
-  async checkRemoteStatus(userInfo) {
-    try {
-      const response = await fetch(
-        `https://bulk-delete-chatgpt-worker.qcrao.com/check-payment-status?user_id=${encodeURIComponent(userInfo.id)}`
-      );
-      return await response.json();
-    } catch (error) {
-      console.error("Error checking remote membership status:", error);
-      throw error;
-    }
-  },
-  
-  async checkMembershipStatus() {
-    const localIsPaid = this.getLocalStatus();
-    updatePaidFeatures(localIsPaid);
-
-    try {
-      const userInfo = await getUserInfo();
-      if (!userInfo) {
-        console.error("Unable to get user info");
-        return;
-      }
-
-      const data = await this.checkRemoteStatus(userInfo);
-      this.setLocalStatus(data.isPaid);
-      updatePaidFeatures(data.isPaid);
-    } catch (error) {
-      console.error("Error in membership status check:", error);
-    }
-  }
-};
-
-function updatePaidFeatures(isPaid) {
-  updateBulkArchiveButton(isPaid);
-  updateAdVisibility(isPaid);
-}
-
-function updateBulkArchiveButton(isPaid) {
-  const bulkArchiveButton = document.getElementById("bulk-archive");
-  if (bulkArchiveButton && !bulkArchiveButton.classList.contains("progress")) {
-    setBulkArchiveButtonContent(bulkArchiveButton, isPaid);
-  }
-}
-
 function createTextSpan(className, textContent) {
   const span = document.createElement("span");
   span.className = className;
@@ -391,25 +325,7 @@ function createTextSpan(className, textContent) {
 }
 
 function setDefaultButtonContent(button, buttonId) {
-  if (buttonId === "bulk-archive") {
-    setBulkArchiveButtonContent(button, MembershipManager.getLocalStatus());
-    return;
-  }
-
   button.replaceChildren(createTextSpan("button-text", "Bulk Delete"));
-}
-
-function setBulkArchiveButtonContent(button, isPaid) {
-  const lockIcon = isPaid ? "" : "🔒";
-  const locked = document.createElement("span");
-  locked.id = "locked";
-  locked.setAttribute("aria-hidden", "true");
-  locked.textContent = lockIcon;
-
-  button.replaceChildren(
-    locked,
-    createTextSpan("button-text", "Bulk Archive")
-  );
 }
 
 function setProgressButtonContent(button, progressText, buttonText) {
@@ -419,194 +335,12 @@ function setProgressButtonContent(button, progressText, buttonText) {
   );
 }
 
-function updateAdVisibility(isPaid) {
-  const navAdContainer = document.getElementById("navAdContainer");
-
-  document.body.classList.toggle("paid-layout", isPaid);
-
-  if (navAdContainer) {
-    navAdContainer.hidden = isPaid;
-  }
-}
-
-function hideNavigationAd() {
-  updateAdVisibility(true);
-}
-
-async function handleBulkArchive() {
-  try {
-    const localIsPaid = MembershipManager.getLocalStatus();
-    
-    if (localIsPaid) {
-      executeArchiveOperation();
-      return;
-    }
-
-    const userInfo = await getUserInfo();
-    if (!userInfo) {
-      console.error("Unable to get user info");
-      alert("Unable to verify user. Please try again later.");
-      return;
-    }
-
-    const data = await MembershipManager.checkRemoteStatus(userInfo);
-    MembershipManager.setLocalStatus(data.isPaid);
-    updatePaidFeatures(data.isPaid);
-
-    if (data.isPaid) {
-      executeArchiveOperation();
-    } else {
-      const userConfirmed = await showModal({
-        title: "Remove Ads + Bulk Archive",
-        description:
-          "One-time payment of $0.99 USD unlocks Bulk Archive and removes ads.",
-      });
-      if (userConfirmed) {
-        await handlePayment(userInfo);
-      }
-    }
-  } catch (error) {
-    console.error("Error in bulk archive handler:", error);
-    alert("An error occurred. Please try again later.");
-  }
-}
-
-function executeArchiveOperation() {
-  getActiveTab().then((tab) => {
-    if (tab) {
-      executeBulkOperation(
-        tab.id,
-        "bulkArchiveConversations.js",
-        "bulk-archive"
-      );
-    }
-  });
-}
-
-async function handleCloseAd(event) {
-  event.preventDefault();
-  event.stopPropagation();
-
-  const closeAdButton = document.getElementById("closeAdButton");
-
-  try {
-    if (MembershipManager.getLocalStatus()) {
-      hideNavigationAd();
-      return;
-    }
-
-    if (closeAdButton) {
-      closeAdButton.disabled = true;
-    }
-
-    const userInfo = await getUserInfo();
-    if (!userInfo) {
-      console.error("Unable to get user info");
-      alert("Unable to verify user. Please try again later.");
-      return;
-    }
-
-    const data = await MembershipManager.checkRemoteStatus(userInfo);
-    MembershipManager.setLocalStatus(data.isPaid);
-    updatePaidFeatures(data.isPaid);
-
-    if (data.isPaid) {
-      hideNavigationAd();
-      return;
-    }
-
-    const userConfirmed = await showModal({
-      title: "Remove Ads + Bulk Archive",
-      description:
-        "One-time payment of $0.99 USD removes ads and automatically unlocks Bulk Archive.",
-    });
-
-    if (userConfirmed) {
-      await handlePayment(userInfo);
-    }
-  } catch (error) {
-    console.error("Error in close ad handler:", error);
-    alert("An error occurred. Please try again later.");
-  } finally {
-    if (closeAdButton) {
-      closeAdButton.disabled = false;
-    }
-  }
-}
-
-async function handlePayment(userInfo) {
-  try {
-    const payResponse = await fetch(
-      `https://bulk-delete-chatgpt-worker.qcrao.com/pay-bulk-archive?user_id=${encodeURIComponent(userInfo.id)}`,
-      { method: "POST" }
-    );
-    const payData = await payResponse.json();
-    
-    if (payData.paymentUrl) {
-      window.open(payData.paymentUrl, "_blank");
-    } else {
-      alert("Failed to get payment link. Please try again later.");
-    }
-  } catch (error) {
-    console.error("Error handling payment:", error);
-    alert("Payment processing failed. Please try again later.");
-  }
-}
-
-function showModal(options = {}) {
-  return new Promise((resolve) => {
-    const modal = document.getElementById("customModal");
-    const title = document.getElementById("modalTitle");
-    const description = document.getElementById("modalDescription");
-    const question = document.getElementById("modalQuestion");
-    const okButton = document.getElementById("modalOK");
-    const cancelButton = document.getElementById("modalCancel");
-
-    title.textContent = options.title || "Remove Ads + Bulk Archive";
-    description.textContent =
-      options.description ||
-      "One-time payment of $0.99 USD removes ads and unlocks Bulk Archive.";
-    question.textContent = options.question || "Do you want to continue?";
-    modal.style.display = "block";
-
-    const cleanup = () => {
-      okButton.removeEventListener("click", handleOK);
-      cancelButton.removeEventListener("click", handleCancel);
-      window.removeEventListener("click", handleOutsideClick);
-    };
-
-    const finish = (confirmed) => {
-      modal.style.display = "none";
-      cleanup();
-      resolve(confirmed);
-    };
-
-    const handleOK = () => finish(true);
-    const handleCancel = () => finish(false);
-    const handleOutsideClick = (event) => {
-      if (event.target == modal) finish(false);
-    };
-
-    okButton.addEventListener("click", handleOK);
-    cancelButton.addEventListener("click", handleCancel);
-    window.addEventListener("click", handleOutsideClick);
-  });
-}
-
 async function loadVersion() {
   try {
     const manifestData = chrome.runtime.getManifest();
     const versionBadge = document.getElementById('version-badge');
     if (versionBadge && manifestData.version) {
       versionBadge.textContent = `v${manifestData.version}`;
-      
-      // Add click handler to open Chrome Web Store page
-      versionBadge.addEventListener('click', (e) => {
-        e.preventDefault();
-        chrome.tabs.create({
-          url: 'https://chromewebstore.google.com/detail/chatgpt-bulk-delete/effkgioceefcfaegehhfafjneeiabdjg?hl=en'
-        });
-      });
     }
   } catch (error) {
     console.error('Error loading version:', error);
@@ -616,14 +350,5 @@ async function loadVersion() {
 document.addEventListener("DOMContentLoaded", function () {
   initializeButtons();
   initializeSettings();
-  MembershipManager.checkMembershipStatus();
   loadVersion();
-});
-
-chrome.runtime.onConnect.addListener(function (port) {
-  if (port.name === "popup") {
-    port.onDisconnect.addListener(function () {
-      MembershipManager.checkMembershipStatus();
-    });
-  }
 });

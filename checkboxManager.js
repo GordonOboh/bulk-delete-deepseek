@@ -1,23 +1,18 @@
 /**
- * ChatGPT Bulk Delete - Checkbox Manager Module
- * 
- * Handles all checkbox-related functionality including:
- * - Checkbox creation and styling
- * - Layout management
- * - Event handling and interaction setup
+ * DeepSeek Bulk Delete - Checkbox Manager Module
  */
 
 (function() {
   'use strict';
 
   // Wait for core system to be ready
-  if (!window.ChatGPTBulkDelete) {
+  if (!window.DeepSeekBulkDelete) {
     console.error('[CheckboxManager] Core system not found, deferring initialization');
     setTimeout(arguments.callee, 50);
     return;
   }
 
-  const core = window.ChatGPTBulkDelete;
+  const core = window.DeepSeekBulkDelete;
   
   // Module factory function
   function createCheckboxManager(coreSystem) {

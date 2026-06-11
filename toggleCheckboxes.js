@@ -1,21 +1,18 @@
 /**
- * ChatGPT Bulk Delete - Toggle Checkboxes Operation
- * 
- * This script toggles all visible checkboxes on/off.
- * It uses the CheckboxManager module for the actual implementation.
+ * DeepSeek Bulk Delete - Toggle Checkboxes Operation
  */
 
 (function() {
   'use strict';
 
   // Wait for core system to be ready
-  if (!window.ChatGPTBulkDelete || !window.ChatGPTBulkDelete.initialized) {
+  if (!window.DeepSeekBulkDelete || !window.DeepSeekBulkDelete.initialized) {
     console.error('[ToggleCheckboxes] Core system not ready, deferring execution');
     setTimeout(arguments.callee, 50);
     return;
   }
 
-  const core = window.ChatGPTBulkDelete;
+  const core = window.DeepSeekBulkDelete;
   const utils = core.utils;
 
   utils.debug('ToggleCheckboxes script loaded');

@@ -1,28 +1,25 @@
 /**
- * ChatGPT Bulk Delete - Bulk Delete Conversations Operation
- * 
- * This script performs bulk deletion of selected conversations.
- * It uses the ConversationHandler module for the actual implementation.
+ * DeepSeek Bulk Delete - Bulk Delete Conversations Operation
  */
 
 (function() {
   'use strict';
 
   // Wait for core system to be ready
-  if (!window.ChatGPTBulkDelete || !window.ChatGPTBulkDelete.initialized) {
+  if (!window.DeepSeekBulkDelete || !window.DeepSeekBulkDelete.initialized) {
     console.error('[BulkDelete] Core system not ready, deferring execution');
     setTimeout(arguments.callee, 50);
     return;
   }
 
   // Wait for ConversationHandler module to be available
-  if (!window.ChatGPTBulkDelete.getModule('ConversationHandler')) {
+  if (!window.DeepSeekBulkDelete.getModule('ConversationHandler')) {
     console.error('[BulkDelete] ConversationHandler module not ready, deferring execution');
     setTimeout(arguments.callee, 50);
     return;
   }
 
-  const core = window.ChatGPTBulkDelete;
+  const core = window.DeepSeekBulkDelete;
   const utils = core.utils;
 
   utils.debug('BulkDeleteConversations script loaded');

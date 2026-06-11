@@ -1,21 +1,18 @@
 /**
- * ChatGPT Bulk Delete - Remove Checkboxes Operation
- * 
- * This script removes all checkboxes and reloads the page.
- * It uses the CheckboxManager module for the actual implementation.
+ * DeepSeek Bulk Delete - Remove Checkboxes Operation
  */
 
 (function() {
   'use strict';
 
   // Wait for core system to be ready
-  if (!window.ChatGPTBulkDelete || !window.ChatGPTBulkDelete.initialized) {
+  if (!window.DeepSeekBulkDelete || !window.DeepSeekBulkDelete.initialized) {
     console.error('[RemoveCheckboxes] Core system not ready, deferring execution');
     setTimeout(arguments.callee, 50);
     return;
   }
 
-  const core = window.ChatGPTBulkDelete;
+  const core = window.DeepSeekBulkDelete;
   const utils = core.utils;
 
   utils.debug('RemoveCheckboxes script loaded');

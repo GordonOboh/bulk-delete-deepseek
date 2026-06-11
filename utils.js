@@ -3,19 +3,15 @@ if (typeof window.utilsLoaded === "undefined") {
 
   window.utilsLoaded = true;
 
-  // Common utility functions
   const CommonUtils = {
-    // Delay utility
     delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
 
-    // Generate timestamp
     generateTimestamp() {
       return new Date().toISOString().replace("T", " ").substr(0, 19);
     },
 
-    // Safe element query with timeout
     async waitForElement(selector, parent = document, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {
       const startedAt = Date.now();
       while (Date.now() - startedAt < timeout) {
@@ -26,7 +22,6 @@ if (typeof window.utilsLoaded === "undefined") {
       throw new Error(`Element ${selector} not found within ${timeout}ms`);
     },
 
-    // Wait for element to disappear
     async waitForElementToDisappear(selector, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {
       const startedAt = Date.now();
       while (Date.now() - startedAt < timeout) {
@@ -37,7 +32,6 @@ if (typeof window.utilsLoaded === "undefined") {
       throw new Error(`Element ${selector} did not disappear within ${timeout}ms`);
     },
 
-    // Find element by text content (legacy method)
     async waitForElementByText(selector, textOptions, parent = document, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {
       const startedAt = Date.now();
       const texts = Array.isArray(textOptions) ? textOptions : [textOptions];
@@ -47,9 +41,7 @@ if (typeof window.utilsLoaded === "undefined") {
         const element = Array.from(elements).find(el => {
           const textContent = el.textContent.trim();
           return texts.some(text =>
-            textContent === text ||
-            textContent.includes(text) ||
-            (text === UI_CONFIG.STRINGS.DELETE && el.querySelector(".text-token-text-error"))
+            textContent === text || textContent.includes(text)
           );
         });
         if (element) return element;
@@ -58,7 +50,6 @@ if (typeof window.utilsLoaded === "undefined") {
       return null;
     },
 
-    // Find element using multiple strategies (language-independent)
     async waitForElementByStrategy(operation, parent = document, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {
       const strategies = UI_CONFIG.BUTTON_STRATEGIES[operation.toUpperCase()];
       if (!strategies) {
@@ -66,17 +57,15 @@ if (typeof window.utilsLoaded === "undefined") {
       }
 
       const startedAt = Date.now();
-      
+
       while (Date.now() - startedAt < timeout) {
         for (const strategy of strategies) {
           if (strategy === 'text-fallback') {
-            // Fallback to text matching with multiple languages
-            // Dynamically get all strings for the operation
             const prefix = operation === 'DELETE' ? 'DELETE' : 'ARCHIVE';
             const textOptions = Object.entries(UI_CONFIG.STRINGS)
               .filter(([key]) => key === prefix || key.startsWith(prefix + '_'))
               .map(([, value]) => value);
-            
+
             const elements = parent.querySelectorAll('div[role="menuitem"]');
             const element = Array.from(elements).find(el => {
               const textContent = el.textContent.trim();
@@ -86,37 +75,30 @@ if (typeof window.utilsLoaded === "undefined") {
             });
 
             if (element) {
-              console.log(`Found ${operation} button using text fallback strategy, text: "${element.textContent.trim()}"`);
               return element;
             }
           } else {
-            // Try CSS selector strategy
             const element = parent.querySelector(strategy);
             if (element) {
-              console.log(`Found ${operation} button using strategy: ${strategy}`);
               return element;
             }
           }
         }
-        
         await this.delay(UI_CONFIG.DELAYS.SHORT);
       }
-      
+
       return null;
     },
 
-    // Get selected conversations
     getSelectedConversations() {
       return [...document.querySelectorAll(UI_CONFIG.SELECTORS.conversationsCheckbox)];
     },
 
-    // Remove all checkboxes
     removeAllCheckboxes() {
       const checkboxes = document.querySelectorAll(`.${CSS_CLASSES.CHECKBOX}`);
       checkboxes.forEach(checkbox => checkbox.remove());
     },
 
-    // Show notification
     showNotification(message, type = 'info') {
       console.log(`[${type.toUpperCase()}] ${message}`);
       if (type === 'error') {
@@ -125,24 +107,11 @@ if (typeof window.utilsLoaded === "undefined") {
     }
   };
 
-  // Chrome API utilities
   const ChromeUtils = {
-    // Get user info with error handling
     getUserInfo() {
-      return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ action: "getUserInfo" }, (response) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else if (response.error) {
-            reject(new Error(response.error));
-          } else {
-            resolve(response.userInfo);
-          }
-        });
-      });
+      return Promise.resolve({ id: 'local', email: '' });
     },
 
-    // Send progress update
     sendProgress(buttonId, progress) {
       chrome.runtime.sendMessage({
         action: "updateProgress",
@@ -151,7 +120,6 @@ if (typeof window.utilsLoaded === "undefined") {
       });
     },
 
-    // Send operation complete
     sendComplete(buttonId) {
       chrome.runtime.sendMessage({
         action: "operationComplete",
@@ -160,68 +128,8 @@ if (typeof window.utilsLoaded === "undefined") {
     }
   };
 
-  // API utilities
-  const APIUtils = {
-    // Generic API call with error handling
-    async makeRequest(endpoint, options = {}) {
-      try {
-        const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          ...options
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return await response.json();
-      } catch (error) {
-        console.error(`API request failed for ${endpoint}:`, error);
-        throw error;
-      }
-    },
-
-    // Send analytics event
-    async sendEvent(action, count) {
-      try {
-        const userInfo = await ChromeUtils.getUserInfo();
-        const data = {
-          user_id: userInfo.id || "unknown",
-          timestamp: CommonUtils.generateTimestamp(),
-          action: action,
-          count: count
-        };
-
-        await this.makeRequest(API_CONFIG.ENDPOINTS.SEND_EVENT, {
-          method: 'POST',
-          body: JSON.stringify(data)
-        });
-
-        console.log(`Event '${action}' sent successfully`);
-      } catch (error) {
-        console.error(`Error sending '${action}' event:`, error);
-      }
-    },
-
-    // Check payment status
-    async checkPaymentStatus(userId) {
-      const endpoint = `${API_CONFIG.ENDPOINTS.CHECK_PAYMENT}?user_id=${encodeURIComponent(userId)}`;
-      return await this.makeRequest(endpoint);
-    }
-  };
-
-  // Export to global scope
   window.CommonUtils = CommonUtils;
   window.ChromeUtils = ChromeUtils;
-  window.APIUtils = APIUtils;
-
-  // For backward compatibility
-  window.getUserInfo = ChromeUtils.getUserInfo;
-  window.sendEventAsync = APIUtils.sendEvent;
 
 } else {
   console.log("utils.js already loaded, skipping re-initialization");

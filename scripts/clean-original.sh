@@ -22,23 +22,23 @@ echo "  removed: manifest.firefox.json"
 rm -f AGENTS.md CLAUDE.md DAILY_WORKFLOW.md README-CN.md
 echo "  removed: AGENTS.md, CLAUDE.md, DAILY_WORKFLOW.md, README-CN.md"
 
-# --- Remove agent configs ---
-rm -rf .agents .claude
-echo "  removed: .agents/ .claude/"
+# --- Remove original files in .agents/ except ours ---
+shopt -s nullglob
+for f in .agents/*; do
+  base=$(basename "$f")
+  if [ "$base" != "agent_diff.md" ] && [ "$base" != "contact-request.md" ] && [ "$base" != "store-checklist.md" ]; then
+    rm -f "$f"
+    echo "  removed: $f"
+  fi
+done
+shopt -u nullglob
+
+rm -rf .claude
+echo "  removed: .claude/"
 
 # --- Remove assets ---
 rm -rf assets
 echo "  removed: assets/"
 
-# --- Clean scripts/ except our files ---
-# Remove every original script in scripts/ except package.sh
-for f in scripts/*.sh; do
-  base=$(basename "$f")
-  if [ "$base" != "package.sh" ] && [ "$base" != "clean-original.sh" ]; then
-    rm -f "$f"
-    echo "  removed: $f"
-  fi
-done
-
 echo "=== Cleanup complete ==="
-echo "Preserved: scripts/package.sh scripts/clean-original.sh agent/*"
+echo "Preserved: scripts/package.sh scripts/clean-original.sh agent/* .agents/agent_diff.md .agents/contact-request.md .agents/store-checklist.md"

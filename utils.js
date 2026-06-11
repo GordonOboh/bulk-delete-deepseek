@@ -66,7 +66,7 @@ if (typeof window.utilsLoaded === "undefined") {
               .filter(([key]) => key === prefix || key.startsWith(prefix + '_'))
               .map(([, value]) => value);
 
-            const elements = parent.querySelectorAll('div[role="menuitem"]');
+            const elements = parent.querySelectorAll('div[role="menuitem"], ' + UI_CONFIG.SELECTORS.MENU_OPTION);
             const element = Array.from(elements).find(el => {
               const textContent = el.textContent.trim();
               return textOptions.some(text =>

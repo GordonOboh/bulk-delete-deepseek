@@ -39,7 +39,8 @@ if (typeof window.configLoaded === "undefined") {
       THREE_DOT_BUTTON: "._2090548",
       DELETE_BUTTON: ".ds-dropdown-menu-option--error",
       CONFIRM_DELETE_BUTTON: ".ds-button--error",
-      MENU_ITEM: "div[role='menuitem']"
+      MENU_ITEM: "div[role='menuitem']",
+      MENU_OPTION: ".ds-dropdown-menu-option"
     },
     STRINGS: {
       DELETE: "Delete",

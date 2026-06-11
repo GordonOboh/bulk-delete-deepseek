@@ -4,16 +4,10 @@
   "version": "1.0.0",
   "description": "Bulk delete DeepSeek chat conversations",
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "48": "icon48.png"
   },
   "action": {
-    "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
-    },
+    "default_icon": "icon48.png",
     "default_popup": "popup.html",
     "default_title": "DeepSeek Bulk Delete"
   },

@@ -26,6 +26,10 @@ echo "  removed: AGENTS.md, CLAUDE.md, DAILY_WORKFLOW.md, README-CN.md"
 shopt -s nullglob
 for f in .agents/*; do
   base=$(basename "$f")
+  if [ -d "$f" ]; then
+    echo "  preserving directory: $f/"
+    continue
+  fi
   if [ "$base" != "agent_diff.md" ] && [ "$base" != "contact-request.md" ] && [ "$base" != "store-checklist.md" ]; then
     rm -f "$f"
     echo "  removed: $f"

@@ -8,6 +8,7 @@ set -euo pipefail
 #   scripts/package.sh          — our packaging script
 #   scripts/clean-original.sh   — this script itself
 #   agent/*                     — our docs (agent_diff.md, contact-request.md, store-checklist.md)
+#   .agents/opencode/           — opencode agent configs
 
 echo "=== Cleaning up original ChatGPT files ==="
 
@@ -30,10 +31,8 @@ for f in .agents/*; do
     echo "  preserving directory: $f/"
     continue
   fi
-  if [ "$base" != "agent_diff.md" ] && [ "$base" != "contact-request.md" ] && [ "$base" != "store-checklist.md" ]; then
-    rm -f "$f"
-    echo "  removed: $f"
-  fi
+  rm -f "$f"
+  echo "  removed: $f"
 done
 shopt -u nullglob
 
@@ -45,4 +44,4 @@ rm -rf assets
 echo "  removed: assets/"
 
 echo "=== Cleanup complete ==="
-echo "Preserved: scripts/package.sh scripts/clean-original.sh agent/* .agents/agent_diff.md .agents/contact-request.md .agents/store-checklist.md"
+echo "Preserved: scripts/package.sh scripts/clean-original.sh agent/* .agents/opencode/"

@@ -5,8 +5,9 @@ set -euo pipefail
 # that are not needed for the DeepSeek fork.
 #
 # Exempts (preserves):
-#   scripts/package.sh      — our packaging script
-#   agent/*                 — our docs (agent_diff.md, contact-request.md, store-checklist.md)
+#   scripts/package.sh          — our packaging script
+#   scripts/clean-original.sh   — this script itself
+#   agent/*                     — our docs (agent_diff.md, contact-request.md, store-checklist.md)
 
 echo "=== Cleaning up original ChatGPT files ==="
 
@@ -33,11 +34,11 @@ echo "  removed: assets/"
 # Remove every original script in scripts/ except package.sh
 for f in scripts/*.sh; do
   base=$(basename "$f")
-  if [ "$base" != "package.sh" ]; then
+  if [ "$base" != "package.sh" ] && [ "$base" != "clean-original.sh" ]; then
     rm -f "$f"
     echo "  removed: $f"
   fi
 done
 
 echo "=== Cleanup complete ==="
-echo "Preserved: scripts/package.sh agent/*"
+echo "Preserved: scripts/package.sh scripts/clean-original.sh agent/*"

@@ -152,6 +152,7 @@
           
           // Add click handler for checkbox toggle
           conversation.addEventListener("click", (event) => {
+            if (event.target.closest('[role="button"]')) return;
             if (!event.target.classList.contains(CSS_CLASSES.CHECKBOX)) {
               this.handleConversationClick(conversation, event);
             }

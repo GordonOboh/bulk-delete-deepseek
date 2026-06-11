@@ -1,0 +1,17 @@
+=== DEBUG SCRIPT 1: Find the context menu ===
+Manually click the 3-dot button (with mouse, not console).
+While the menu is visible, run this:
+
+Array.from(document.querySelectorAll('div > div')).filter(el => el.children.length > 0 && el.offsetParent && !el.closest('._546d736')).forEach(el => console.log(el.className, el.children.length))
+
+=== DEBUG SCRIPT 2: Test bulk delete flow ===
+Check some checkboxes, then in console run:
+
+let checkboxes = document.querySelectorAll('.ds-checkbox:checked')
+console.log('Found', checkboxes.length, 'checked checkboxes')
+
+// Then try the 3-dot button on first checked conversation
+let conv = checkboxes[0].closest('._546d736')
+let dots = conv.querySelector('._2090548')
+console.log('Dots button:', dots)
+dots.click()

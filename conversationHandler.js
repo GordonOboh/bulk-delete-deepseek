@@ -119,16 +119,11 @@ if (typeof window.conversationHandlerLoaded === "undefined") {
       const titleEl = conversationElement.querySelector(UI_CONFIG.SELECTORS.TITLE_SELECTOR);
 
       try {
-        DOMHandler.dispatchHoverEvent(conversationElement);
-        if (titleEl) DOMHandler.dispatchHoverEvent(titleEl);
-        await CommonUtils.delay(UI_CONFIG.DELAYS.MEDIUM);
-
         const dotsButton = this.findThreeDotButton(conversationElement);
         if (!dotsButton) {
           throw new Error("Three-dot menu button not found");
         }
 
-        DOMHandler.dispatchPointerDownEvent(dotsButton);
         dotsButton.click();
         await CommonUtils.delay(UI_CONFIG.DELAYS.LONG);
 
@@ -170,6 +165,15 @@ if (typeof window.conversationHandlerLoaded === "undefined") {
     },
 
     async waitForDeleteButton(operation, parent = document, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {
+      const menu = document.querySelector(UI_CONFIG.SELECTORS.CONTEXT_MENU);
+      if (menu) {
+        try {
+          return await CommonUtils.waitForElementByStrategy(operation, menu, timeout);
+        } catch (error) {
+          const selector = UI_CONFIG.SELECTORS.DELETE_BUTTON;
+          return await CommonUtils.waitForElement(selector, menu, timeout);
+        }
+      }
       try {
         return await CommonUtils.waitForElementByStrategy(operation, parent, timeout);
       } catch (error) {

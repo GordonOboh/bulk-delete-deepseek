@@ -20,9 +20,8 @@
 
 ### Firefox Support
 - Removed `manifest.firefox.json`.
-- Removed original Firefox packaging scripts (`scripts/build-firefox.sh`, `scripts/package-extensions.sh`).
+- Removed `scripts/` directory (build/packaging scripts for Firefox).
 - Extension is Chrome/Chromium-only (MV3).
-- Our `scripts/` now contains `package.sh` (Web Store ZIP) and `clean-original.sh` (upstream clean-up).
 
 ### Agent/Developer Docs
 - Removed `AGENTS.md`, `CLAUDE.md`, `DAILY_WORKFLOW.md` (ChatGPT-specific development guidance).
@@ -90,11 +89,3 @@
 ## Dependencies
 - Both are zero-dependency Manifest V3 extensions — no build step required.
 - Fork retains the same file loading order via `manifest.json` content_scripts array.
-
-## Utility Scripts (`scripts/`)
-
-| Script | Purpose |
-|---|---|
-| `package.sh` | Creates a ZIP (`dist/deepseek-bulk-delete-v1.0.0.zip`) for Chrome Web Store upload |
-| `clean-original.sh` | Removes files inherited from upstream ChatGPT repo (exempts `package.sh` and `agent/*`) |
-

@@ -15,6 +15,8 @@ Body:
 > - Removes ChatGPT-specific features (archive, payments, ads, etc.)
 > - Keeps the core bulk-delete logic and architecture intact
 >
+> Additionally, I'd like to ask for permission to publish this fork to the Chrome Web Store and Firefox Extension Store (addons.mozilla.org) as "DeepSeek Bulk Delete". The extension would remain free and open-source.
+>
 > The fork lives at: https://github.com/GordonOboh/bulk-delete-deepseek
 >
 > Happy to include whatever attribution you prefer, or take it down if you are not comfortable with it.
@@ -37,6 +39,8 @@ Body:
 > https://github.com/GordonOboh/bulk-delete-deepseek
 >
 > Since your repo does not have a license file, I wanted to ask for your permission to maintain this fork publicly. The adaptation keeps your original architecture intact but swaps ChatGPT-specific selectors and features for DeepSeek equivalents.
+>
+> I'd also like your permission to publish the extension on the Chrome Web Store and Firefox Extension Store (addons.mozilla.org) as "DeepSeek Bulk Delete". It would remain free and open-source.
 >
 > Happy to add whatever attribution you'd like, or remove the fork if you're not comfortable with it.
 >

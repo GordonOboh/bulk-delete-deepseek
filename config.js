@@ -32,10 +32,11 @@ if (typeof window.configLoaded === "undefined") {
       conversationsCheckbox: ".ds-checkbox:checked",
       SIDEBAR: ".dc04ec1d",
       CHAT_LIST: "._03210fb",
-      CONVERSATION_SELECTOR: "._83421f9",
+      CONVERSATION_SELECTOR: "._546d736",
       TITLE_SELECTOR: ".c08e6e93",
       ACTIVE_SELECTOR: ".b64fb9ae",
       CONTEXT_MENU: ".ds-floating-position-wrapper",
+      THREE_DOT_BUTTON: "._2090548",
       DELETE_BUTTON: ".ds-dropdown-menu-option--error",
       CONFIRM_DELETE_BUTTON: ".ds-button--error",
       MENU_ITEM: "div[role='menuitem']"

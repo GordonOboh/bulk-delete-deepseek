@@ -37,9 +37,10 @@ if (typeof window.domHandlerLoaded === "undefined") {
     findConversationMenuButton(conversationElement) {
       const titleEl = conversationElement.querySelector(UI_CONFIG.SELECTORS.TITLE_SELECTOR);
       if (titleEl && titleEl.nextElementSibling) {
-        return titleEl.nextElementSibling;
+        const button = titleEl.nextElementSibling.querySelector("div[role='button']");
+        if (button) return button;
       }
-      return conversationElement.querySelector("button");
+      return conversationElement.querySelector(UI_CONFIG.SELECTORS.THREE_DOT_BUTTON);
     },
 
     dispatchHoverEvent(element) {

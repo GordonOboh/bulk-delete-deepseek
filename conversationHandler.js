@@ -163,9 +163,10 @@ if (typeof window.conversationHandlerLoaded === "undefined") {
     findThreeDotButton(conversationElement) {
       const titleEl = conversationElement.querySelector(UI_CONFIG.SELECTORS.TITLE_SELECTOR);
       if (titleEl && titleEl.nextElementSibling) {
-        return titleEl.nextElementSibling;
+        const button = titleEl.nextElementSibling.querySelector("div[role='button']");
+        if (button) return button;
       }
-      return DOMHandler.findConversationMenuButton(conversationElement);
+      return conversationElement.querySelector(UI_CONFIG.SELECTORS.THREE_DOT_BUTTON);
     },
 
     async waitForDeleteButton(operation, parent = document, timeout = UI_CONFIG.TIMEOUTS.ELEMENT_WAIT) {

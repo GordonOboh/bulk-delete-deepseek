@@ -35,12 +35,62 @@ if (typeof window.domHandlerLoaded === "undefined") {
     // Get conversation title safely
     getConversationTitle(conversationElement) {
       const titleElement = conversationElement.querySelector(UI_CONFIG.SELECTORS.TITLE_SELECTOR);
-      return titleElement ? titleElement.textContent.trim() : "this conversation";
+      if (titleElement) {
+        return titleElement.textContent.trim();
+      }
+
+      const projectLink = conversationElement.querySelector(
+        UI_CONFIG.SELECTORS.PROJECT_CONVERSATION_LINK_SELECTOR
+      );
+      if (projectLink) {
+        return projectLink.textContent.trim();
+      }
+
+      return conversationElement.textContent.trim() || "this conversation";
     },
 
     // Find interactive element in conversation
     findInteractiveElement(conversationElement) {
       return conversationElement.querySelector(UI_CONFIG.SELECTORS.INTERACTIVE_ELEMENT_SELECTOR);
+    },
+
+    getConversationElementFromCheckbox(checkbox) {
+      return checkbox.closest('[data-bulk-delete-conversation-owner="true"]')
+        || checkbox.parentElement;
+    },
+
+    findConversationMenuButton(conversationElement) {
+      const selector = UI_CONFIG.SELECTORS.CONVERSATION_MENU_BUTTON
+        || UI_CONFIG.SELECTORS.threeDotButton;
+      const directButton = conversationElement.querySelector(selector);
+      if (directButton) {
+        return directButton;
+      }
+
+      const parent = conversationElement.parentElement;
+      if (!parent) {
+        return null;
+      }
+
+      const conversationRect = conversationElement.getBoundingClientRect();
+      const candidates = Array.from(parent.querySelectorAll(selector));
+      const alignedCandidates = candidates
+        .map((button) => {
+          const rect = button.getBoundingClientRect();
+          const overlapsVertically =
+            rect.bottom >= conversationRect.top &&
+            rect.top <= conversationRect.bottom;
+          const centerDistance = Math.abs(
+            (rect.top + rect.bottom) / 2 -
+            (conversationRect.top + conversationRect.bottom) / 2
+          );
+
+          return { button, overlapsVertically, centerDistance };
+        })
+        .filter((candidate) => candidate.overlapsVertically)
+        .sort((a, b) => a.centerDistance - b.centerDistance);
+
+      return alignedCandidates[0] ? alignedCandidates[0].button : null;
     },
 
     // Dispatch hover event
@@ -64,16 +114,42 @@ if (typeof window.domHandlerLoaded === "undefined") {
     },
 
     // Get all conversations from history
-    getAllConversations() {
+    getHistoryConversations() {
       const history = document.querySelector(UI_CONFIG.SELECTORS.HISTORY);
       if (!history) {
-        throw new Error("History container not found");
+        return [];
       }
-      return history.querySelectorAll(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR);
+      return Array.from(history.querySelectorAll(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR));
+    },
+
+    getProjectConversations() {
+      return Array.from(
+        document.querySelectorAll(UI_CONFIG.SELECTORS.PROJECT_CONVERSATION_SELECTOR)
+      ).filter((conversation) =>
+        conversation.querySelector(UI_CONFIG.SELECTORS.PROJECT_CONVERSATION_LINK_SELECTOR)
+      );
+    },
+
+    getAllConversations() {
+      const conversations = [
+        ...this.getProjectConversations(),
+        ...this.getHistoryConversations()
+      ];
+      return conversations.filter((conversation, index, allConversations) =>
+        allConversations.indexOf(conversation) === index
+      );
     },
 
     // Toggle conversation link interaction
     toggleConversationInteraction(conversation, disable = true) {
+      if (conversation.matches("a")) {
+        // Sidebar conversations are anchors themselves. Disabling pointer
+        // events on the host anchor also blocks the injected checkbox.
+        conversation.style.pointerEvents = "auto";
+        conversation.style.cursor = disable ? "pointer" : "";
+        return;
+      }
+
       const link = conversation.querySelector("a");
       if (link) {
         if (disable) {

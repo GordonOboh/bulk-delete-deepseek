@@ -107,6 +107,7 @@
 
           // Make sure the conversation can host an absolutely-positioned child
           // and leave room for the checkbox so it doesn't cover the title.
+          conversation.dataset.bulkDeleteConversationOwner = "true";
           const computed = window.getComputedStyle(conversation);
           if (computed.position === 'static') {
             conversation.style.position = 'relative';
@@ -144,6 +145,12 @@
           if (!DOMHandler) {
             throw new Error('DOMHandler module not found');
           }
+
+          if (conversation.dataset.bulkDeleteInteractionSetup === "true") {
+            utils.debug('Conversation interaction already setup');
+            return;
+          }
+          conversation.dataset.bulkDeleteInteractionSetup = "true";
 
           // Disable default link behavior
           DOMHandler.toggleConversationInteraction(conversation, true);

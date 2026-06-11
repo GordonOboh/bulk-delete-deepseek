@@ -64,9 +64,7 @@ if (typeof window.domHandlerLoaded === "undefined") {
     getHistoryConversations() {
       const sidebar = document.querySelector(UI_CONFIG.SELECTORS.SIDEBAR);
       if (!sidebar) return [];
-      const chatList = sidebar.querySelector(UI_CONFIG.SELECTORS.CHAT_LIST);
-      if (!chatList) return [];
-      return Array.from(chatList.querySelectorAll(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR));
+      return Array.from(sidebar.querySelectorAll(UI_CONFIG.SELECTORS.CONVERSATION_SELECTOR));
     },
 
     getProjectConversations() {

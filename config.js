@@ -30,8 +30,8 @@ if (typeof window.configLoaded === "undefined") {
     },
     SELECTORS: {
       conversationsCheckbox: ".ds-checkbox:checked",
-      SIDEBAR: ".dc04ec1d",
-      CHAT_LIST: "._03210fb",
+      SIDEBAR: "._77cdc67",
+      CHAT_LIST: "._3098d02",
       CONVERSATION_SELECTOR: "._546d736",
       TITLE_SELECTOR: ".c08e6e93",
       ACTIVE_SELECTOR: ".b64fb9ae",

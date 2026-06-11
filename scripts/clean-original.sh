@@ -26,7 +26,7 @@ echo "  removed: AGENTS.md, CLAUDE.md, DAILY_WORKFLOW.md, README-CN.md"
 shopt -s nullglob
 for f in .agents/*; do
   base=$(basename "$f")
-  if [ -d "$f" ]; then
+  if [ "$base" = "opencode" ]; then
     echo "  preserving directory: $f/"
     continue
   fi
